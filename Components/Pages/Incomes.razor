@@ -1,0 +1,113 @@
+﻿@page "/income"
+@using GlowExp.Components.Data
+<h3 class="">Income</h3>
+
+<form class="" @onsubmit="saveIncome">
+	<div>
+		<label>Amount: </label>
+		<input type="text" @bind="newIncome.Amount" name="amount" />
+	</div>
+
+	<div>
+		<label>Category: </label>
+		<select @bind="newIncome.Category">
+			<option></option>
+			<option>Salary</option>
+			<option>Allowance</option>
+			<option>Bonus</option>
+			<option>Other</option>
+		</select>
+
+	</div>
+
+	<div>
+		<label>Date: </label>
+		<input type="date" @bind="newIncome.Date" name="date" />
+
+	</div>
+
+
+
+
+	<div>
+		<label>Account: </label>
+		<select @bind="newIncome.Account">
+			<option>Cash</option>
+			<option>Accounts</option>
+			<option>Card</option>
+		</select>
+
+	</div>
+
+	<div>
+		<label>Note: </label>
+		<input type="text" @bind="newIncome.Note" name="note" />
+	</div>
+
+	<button  type="submit">Save</button>
+	<button type="reset">Continue</button>
+	<button type="reset" @onclick="clear">Delete all Income</button>
+
+</form>
+
+
+@if (incomes.Any())
+{
+	<p>Saved Successfully</p>
+	@foreach (var income in incomes)
+	{
+		<p>Amount: @income.Amount</p>
+		<p>Generated Income id: @income.Id</p>
+		<p>Category: @income.Category</p>
+		<p>Date: @income.Date</p>
+		<p>Account: @income.Account</p>
+		<p>Note: @income.Note</p>
+
+	}
+}
+
+
+
+
+
+
+
+
+
+@code {
+
+	public List<Income> incomes { get; set; } = new List<Income>();
+	public Income newIncome { get; set; } = new Income();
+	private bool showSucessMessage = false;
+
+
+
+	public void saveIncome()
+	{
+		incomes.Add(new Income
+			{
+				Id = Guid.NewGuid(),
+				Amount = newIncome.Amount,
+				Category = newIncome.Category,
+				Date = newIncome.Date,
+				Account = newIncome.Account,
+				Note = newIncome.Note
+			});
+
+
+
+
+
+
+
+
+	}
+
+	public void clear()
+	{
+
+		incomes.Clear();
+	}
+
+
+}
