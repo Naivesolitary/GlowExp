@@ -1,0 +1,114 @@
+﻿@page "/expense"
+@using GlowExp.Components.Data
+
+<h3 class="">Expense</h3>
+
+<form class="" @onsubmit="saveExpense">
+	<div>
+		<label>Amount: </label>
+		<input type="text" @bind="newExpense.Amount" name="amount" />
+	</div>
+
+	<div>
+		<label>Category: </label>
+		<select @bind="newExpense.Category">
+			<option></option>
+			<option>Salary</option>
+			<option>Allowance</option>
+			<option>Bonus</option>
+			<option>Other</option>
+		</select>
+
+	</div>
+
+	<div>
+		<label>Date: </label>
+		<input type="date" @bind="newExpense.Date" name="date" />
+
+	</div>
+
+
+
+
+	<div>
+		<label>Account: </label>
+		<select @bind="newExpense.Account">
+			<option>Cash</option>
+			<option>Accounts</option>
+			<option>Card</option>
+		</select>
+
+	</div>
+
+	<div>
+		<label>Note: </label>
+		<input type="text" @bind="newExpense.Note" name="note" />
+	</div>
+
+	<button class="bg-violet-500" type="submit">Save</button>
+	<button type="reset">Continue</button>
+	<button type="reset" @onclick="clear">Delete all Expense</button>
+
+</form>
+
+
+@if (expenses.Any())
+{
+	<p>Saved Successfully</p>
+	@foreach (var expense in expenses)
+	{
+		<p>Amount: @expense.Amount</p>
+		<p>Generated Expense id: @expense.Id</p>
+		<p>Category: @expense.Category</p>
+		<p>Date: @expense.Date</p>
+		<p>Account: @expense.Account</p>
+		<p>Note: @expense.Note</p>
+
+	}
+}
+
+
+
+
+
+
+
+
+
+@code {
+
+	public List<Expense> expenses { get; set; } = new List<Expense>();
+	public Expense newExpense { get; set; } = new Expense();
+	private bool showSucessMessage = false;
+
+
+
+	public void saveExpense()
+	{
+		expenses.Add(new Expense
+			{
+				Id = Guid.NewGuid(),
+				Amount = newExpense.Amount,
+				Category = newExpense.Category,
+				Date = newExpense.Date,
+				Account = newExpense.Account,
+				Note = newExpense.Note
+			});
+
+
+
+
+
+
+
+
+	}
+
+	public void clear()
+	{
+
+		expenses.Clear();
+	}
+
+
+}
