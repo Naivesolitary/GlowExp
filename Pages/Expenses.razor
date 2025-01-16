@@ -1,5 +1,6 @@
 ﻿@page "/expense"
 @using GlowExp.Components.Data
+@inject TransactionService TransactionService
 
 <h3 class="font-sans">Expense</h3>
 
@@ -61,9 +62,9 @@
 		</thead>
 		<tbody class="text-gray-700 text-sm">
 			<!-- Data Rows Go Here -->
-			@if (expenses.Any())
+			@if (TransactionService.GetTransactionByType<Expense>().Any())
 			{
-				@foreach (var expense in expenses)
+				@foreach (var expense in TransactionService.GetTransactionByType<Expense>())
 				{
 
 
@@ -82,41 +83,6 @@
 	</table>
 </div>
 
-@* <div class="overflow-x-auto bg-white shadow-md rounded-lg mt-6">
-	<table class="min-w-full text-sm text-left text-gray-500">
-		<thead class="bg-gray-100 text-gray-700 uppercase text-xs">
-			<tr>
-				<th class="py-3 px-4">Category</th>
-				<th class="py-3 px-4">Amount</th>
-				<th class="py-3 px-4">Date</th>
-				<th class="py-3 px-4">Account/Source</th>
-				<th class="py-3 px-4">Note</th>
-			</tr>
-		</thead>
-		<tbody>
-			<!-- Data Rows Go Here -->
-			@if (expenses.Any())
-			{
-				@foreach (var expense in expenses)
-				{
-
-
-					<tr class="border-b border-gray-200 hover:bg-gray-100">
-						<td class="py-3 px-4">@expense.Category</td>
-						<td class="py-3 px-4">@expense.Amount</td>
-						<td class="py-3 px-4">@expense.Date</td>
-						<td class="py-3 px-4">@expense.Account</td>
-						<td class="py-3 px-4">@expense.Note</td>
-						
-					</tr>
-
-				}
-			}
-
-			
-		</tbody>
-	</table>
-</div> *@
 
 
 
@@ -132,15 +98,15 @@
 
 @code {
 
-	public List<Expense> expenses { get; set; } = new List<Expense>();
+
 	public Expense newExpense { get; set; } = new Expense();
-	private bool showSucessMessage = false;
+
 
 
 
 	public void saveExpense()
 	{
-		expenses.Add(new Expense
+		TransactionService.AddTransaction(new Expense
 			{
 				Id = Guid.NewGuid(),
 				Amount = newExpense.Amount,
@@ -162,7 +128,7 @@
 	public void clear()
 	{
 
-		expenses.Clear();
+		TransactionService.GetTransactionByType<Expense>().Clear();
 	}
 
 

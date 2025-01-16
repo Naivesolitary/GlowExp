@@ -1,5 +1,6 @@
 ﻿@page "/income"
 @using GlowExp.Components.Data
+@inject TransactionService TransactionService
 <h3 class="font-sans font-bold text-sm/[20px]">Income</h3> 
 
 <form class="space-y-6 bg-white shadow-md rounded-lg p-6" @onsubmit="saveIncome">
@@ -58,12 +59,12 @@
             </tr>
         </thead>
         <tbody class="text-gray-700 text-sm">
-          
-                <!-- Data Rows Go Here -->
-                @if (incomes.Any())
+
+            <!-- Data Rows Go Here -->
+            @if (TransactionService.GetTransactionByType<Income>().Any())
+            {
+                @foreach (var income in TransactionService.GetTransactionByType<Income>())
                 {
-                    @foreach (var income in incomes)
-                    {
                     <tr class="border-b border-gray-200 hover:bg-gray-100">
 
                         <td class="py-3 px-6 text-left">@income.Category</td>
@@ -73,51 +74,17 @@
                         <td class="py-3 px-6 text-left">@income.Note</td>
                     </tr>
 
-                    }
                 }
+            }
 
 
-            
+
         </tbody>
     </table>
 </div>
 
 
 
-
-@* <div class="font-sans overflow-x-auto bg-white shadow-md rounded-lg mt-6">
-    <table class="min-w-full text-sm text-left text-gray-500">
-        <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
-            <tr>
-                <th class="py-3 px-4">Category</th>
-                <th class="py-3 px-4">Amount</th>
-                <th class="py-3 px-4">Date</th>
-                <th class="py-3 px-4">Account/Source</th>
-                <th class="py-3 px-4">Note</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Data Rows Go Here -->
-            @if (incomes.Any())
-            {
-                @foreach (var income in incomes)
-                {
-                    <tr>
-
-                        <td class="py-3 px-4">@income.Category</td>
-                        <td class="py-3 px-4">$@income.Amount</td>
-                        <td class="py-3 px-4">@income.Date</td>
-                        <td class="py-3 px-4">@income.Account</td>
-                        <td class="py-3 px-4">@income.Note</td>
-                    </tr>
-
-                }
-            }
-
-
-        </tbody>
-    </table>
-</div> *@
 
 
 
@@ -137,15 +104,15 @@
 
 @code {
 
-	public List<Income> incomes { get; set; } = new List<Income>();
-	public Income newIncome { get; set; } = new Income();
-	private bool showSucessMessage = false;
+    
+    public Income newIncome { get; set; } = new Income();
 
 
 
-	public void saveIncome()
-	{
-		incomes.Add(new Income
+
+    public void saveIncome()
+    {
+        TransactionService.AddTransaction(new Income
 			{
 				Id = Guid.NewGuid(),
 				Amount = newIncome.Amount,
@@ -162,13 +129,14 @@
 
 
 
-	}
 
-	public void clear()
-	{
+    }
 
-		incomes.Clear();
-	}
+    public void clear()
+    {
+
+        TransactionService.ClearTransactions<Income>();
+    }
 
 
 }

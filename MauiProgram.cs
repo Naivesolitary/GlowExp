@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using GlowExp.Components.Data;
+using Microsoft.Extensions.Logging;
 
 namespace GlowExp
 {
@@ -19,6 +20,7 @@ namespace GlowExp
 #if DEBUG
     		builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
+            builder.Services.AddSingleton<TransactionService>();
 #endif
 
             return builder.Build();
