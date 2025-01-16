@@ -66,4 +66,9 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
     </ItemGroup>
 
+	<Target Name="Tailwind Transformer" Condition="'$(Configuration)' == 'Release'" BeforeTargets="Build">
+		<Message Text ="-------- Generating Tailwind CSS ---------" Importance="high"/>
+		<Exec Command="npx tailwind -i ./wwwroot/css/app.css -o ./wwwroot/css/tailwind.css"/>
+	</Target>
+
 </Project>

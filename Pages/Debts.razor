@@ -1,0 +1,101 @@
+﻿@page "/debt"
+@using GlowExp.Components.Data
+
+<h3 class="">Debts</h3>
+
+<form class="space-y-6 bg-white shadow-md rounded-lg p-6" @onsubmit="saveDebt">
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Date:</label>
+        <input type="date" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newDebt.Date" name="date" />
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Amount:</label>
+        <input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newDebt.Amount" name="amount" />
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Source:</label>
+        <input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newDebt.Source" name="source" />
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Tag:</label>
+        <input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newDebt.Tag" name="tag" />
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Due Date:</label>
+        <input type="date" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newDebt.DueDate" name="dueDate" />
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Note:</label>
+        <input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newDebt.Note" name="note" />
+    </div>
+
+    <div class="flex space-x-4">
+        <button class="py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-md" type="submit">Save</button>
+        <button class="py-2 px-4 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 shadow-md" type="reset">Continue</button>
+        <button class="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md" type="button" @onclick="clear">Delete All Debts</button>
+    </div>
+</form>
+
+<div class="mt-6">
+    <h2 class="text-lg font-semibold mb-4">Debt Records</h2>
+    <table class="min-w-full bg-white shadow-md rounded-lg">
+        <thead>
+            <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                <th class="py-3 px-6 text-left">Amount</th>
+                <th class="py-3 px-6 text-left">Date</th>
+                <th class="py-3 px-6 text-left">Source</th>
+                <th class="py-3 px-6 text-left">Due Date</th>
+                <th class="py-3 px-6 text-left">Tag</th>
+                <th class="py-3 px-6 text-left">Note</th>
+                <th class="py-3 px-6 text-left">Status</th>
+            </tr>
+        </thead>
+        <tbody class="text-gray-700 text-sm">
+            @if (debts.Any())
+            {
+                @foreach (var debt in debts)
+                {
+                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="py-3 px-6 text-left">$@debt.Amount</td>
+                        <td class="py-3 px-6 text-left">@debt.Date</td>
+                        <td class="py-3 px-6 text-left">@debt.Source</td>
+                        <td class="py-3 px-6 text-left">@debt.DueDate</td>
+                        <td class="py-3 px-6 text-left">@debt.Tag</td>
+                        <td class="py-3 px-6 text-left">@debt.Note</td>
+                        <td class="py-3 px-6 text-left">Pending</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    public List<Debt> debts { get; set; } = new List<Debt>();
+    public Debt newDebt { get; set; } = new Debt();
+    private bool showSucessMessage = false;
+
+    public void saveDebt()
+    {
+        debts.Add(new Debt
+            {
+                Id = Guid.NewGuid(),
+                Amount = newDebt.Amount,
+                Source = newDebt.Source,
+                Date = newDebt.Date,
+                DueDate = newDebt.DueDate,
+                Tag = newDebt.Tag,
+                Note = newDebt.Note
+            });
+    }
+
+    public void clear()
+    {
+        debts.Clear();
+    }
+}

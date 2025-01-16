@@ -1,0 +1,174 @@
+﻿@page "/income"
+@using GlowExp.Components.Data
+<h3 class="font-sans font-bold text-sm/[20px]">Income</h3> 
+
+<form class="space-y-6 bg-white shadow-md rounded-lg p-6" @onsubmit="saveIncome">
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Amount:</label>
+        <input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newIncome.Amount" name="amount" />
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Category:</label>
+        <select class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newIncome.Category">
+            <option>Salary</option>
+            <option>Allowance</option>
+            <option>Bonus</option>
+            <option>Other</option>
+        </select>
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Date:</label>
+        <input type="date" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newIncome.Date" name="date" />
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Account:</label>
+        <select class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newIncome.Account">
+            <option>Cash</option>
+            <option>Accounts</option>
+            <option>Card</option>
+        </select>
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Note:</label>
+        <input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newIncome.Note" name="note" />
+    </div>
+
+    <div class="flex space-x-4">
+        <button class="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-indigo-700 shadow-md" type="submit">Save</button>
+        <button class="py-2 px-4 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 shadow-md" type="reset">Continue</button>
+        <button class="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md" type="reset" @onclick="clear">Delete All Income</button>
+    </div>
+</form>
+
+
+<div class="mt-6">
+    <h2 class="text-lg font-semibold mb-4">Income Records</h2>
+    <table class="min-w-full bg-white shadow-md rounded-lg">
+        <thead>
+            <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                <th class="py-3 px-6 text-left">Category</th>
+                <th class="py-3 px-6 text-left">Amount</th>
+                <th class="py-3 px-6 text-left">Date</th>
+                <th class="py-3 px-6 text-left">Account</th>
+                <th class="py-3 px-6 text-left">Note</th>
+            </tr>
+        </thead>
+        <tbody class="text-gray-700 text-sm">
+          
+                <!-- Data Rows Go Here -->
+                @if (incomes.Any())
+                {
+                    @foreach (var income in incomes)
+                    {
+                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+
+                        <td class="py-3 px-6 text-left">@income.Category</td>
+                        <td class="py-3 px-6 text-left">$@income.Amount</td>
+                        <td class="py-3 px-6 text-left">@income.Date</td>
+                        <td class="py-3 px-6 text-left">@income.Account</td>
+                        <td class="py-3 px-6 text-left">@income.Note</td>
+                    </tr>
+
+                    }
+                }
+
+
+            
+        </tbody>
+    </table>
+</div>
+
+
+
+
+@* <div class="font-sans overflow-x-auto bg-white shadow-md rounded-lg mt-6">
+    <table class="min-w-full text-sm text-left text-gray-500">
+        <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
+            <tr>
+                <th class="py-3 px-4">Category</th>
+                <th class="py-3 px-4">Amount</th>
+                <th class="py-3 px-4">Date</th>
+                <th class="py-3 px-4">Account/Source</th>
+                <th class="py-3 px-4">Note</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data Rows Go Here -->
+            @if (incomes.Any())
+            {
+                @foreach (var income in incomes)
+                {
+                    <tr>
+
+                        <td class="py-3 px-4">@income.Category</td>
+                        <td class="py-3 px-4">$@income.Amount</td>
+                        <td class="py-3 px-4">@income.Date</td>
+                        <td class="py-3 px-4">@income.Account</td>
+                        <td class="py-3 px-4">@income.Note</td>
+                    </tr>
+
+                }
+            }
+
+
+        </tbody>
+    </table>
+</div> *@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@code {
+
+	public List<Income> incomes { get; set; } = new List<Income>();
+	public Income newIncome { get; set; } = new Income();
+	private bool showSucessMessage = false;
+
+
+
+	public void saveIncome()
+	{
+		incomes.Add(new Income
+			{
+				Id = Guid.NewGuid(),
+				Amount = newIncome.Amount,
+				Category = newIncome.Category,
+				Date = newIncome.Date,
+				Account = newIncome.Account,
+				Note = newIncome.Note
+			});
+
+
+
+
+
+
+
+
+	}
+
+	public void clear()
+	{
+
+		incomes.Clear();
+	}
+
+
+}
