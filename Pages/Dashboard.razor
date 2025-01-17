@@ -1,0 +1,137 @@
+﻿@page "/dashboard"
+@using GlowExp.Components.Data
+@inject TransactionService TransactionService
+<h3>Dashboard</h3>
+
+<div class="min-h-screen bg-gradient-to-r from-blue-100 via-indigo-200 to-purple-300">
+
+    <!-- Main Content Area -->
+    <div class="p-8 space-y-12">
+
+        <!-- Header Section -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-semibold text-gray-800">Finance Dashboard</h1>
+            <p class="mt-2 text-lg text-gray-600">Monitor your financial transactions and manage debts efficiently</p>
+        </div>
+
+        <!-- Dashboard Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <!-- Total Transactions -->
+            <div class="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                <h5 class="text-xl font-semibold text-gray-700">Total Transactions</h5>
+                <p class="text-4xl font-bold text-indigo-600 mt-4">$@TransactionService.TotalTransactionsValue</p> 
+            </div>
+
+            <!-- Net Transactions -->
+            <div class="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                <h5 class="text-xl font-semibold text-gray-700">No of Transactions</h5>
+                <p class="text-4xl font-bold text-green-600 mt-4">
+                    @TransactionService.TotalTransactions
+                </p> 
+            </div>
+
+            <!-- Total Debt -->
+            <div class="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                <h5 class="text-xl font-semibold text-gray-700">Total Debt</h5>
+                <p class="text-4xl font-bold text-red-600 mt-4">@TransactionService.TotalDebts</p>
+            </div>
+        </div>
+
+        <!-- Financial Breakdown -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Inflows -->
+            <div class="bg-green-100 shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                <h5 class="text-lg font-semibold text-gray-700">Total Inflows</h5>
+                <p class="text-3xl font-bold text-green-700 mt-4">@TransactionService.TotalIncomes</p>
+            </div>
+
+            <!-- Outflows -->
+            <div class="bg-red-100 shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                <h5 class="text-lg font-semibold text-gray-700">Total Outflows</h5>
+                <p class="text-3xl font-bold text-red-700 mt-4">@TransactionService.TotalExpenses</p> 
+            </div>
+
+            <!-- Cleared Debt -->
+            <div class="bg-blue-100 shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                <h5 class="text-lg font-semibold text-gray-700">Cleared Debt</h5>
+                <p class="text-3xl font-bold text-blue-700 mt-4">0</p> 
+            </div>
+
+            <!-- Remaining Debt -->
+            <div class="bg-yellow-100 shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                <h5 class="text-lg font-semibold text-gray-700">Remaining Debt</h5>
+                <p class="text-3xl font-bold text-yellow-700 mt-4">$@TransactionService.TotalDebts</p> 
+            </div>
+        </div>
+
+        <!-- Transaction Insights -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Highest Inflow -->
+            <div class="bg-green-200 shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                <h5 class="text-lg font-semibold text-gray-700">Highest Inflow</h5>
+                <p class="text-3xl font-bold text-green-800 mt-4">$@TransactionService.HighestInflow</p> 
+            </div>
+
+            <!-- Highest Outflow -->
+            <div class="bg-red-200 shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                <h5 class="text-lg font-semibold text-gray-700">Highest Outflow</h5>
+                <p class="text-3xl font-bold text-red-800 mt-4">$@TransactionService.HighestOutflow</p> 
+            </div>
+
+            <!-- Highest Debt -->
+            <div class="bg-yellow-200 shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                <h5 class="text-lg font-semibold text-gray-700">Highest Debt</h5>
+                <p class="text-3xl font-bold text-yellow-800 mt-4">$@TransactionService.HighestDebt</p> 
+            </div>
+        </div>
+
+        <!-- Pending Debts -->
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <h5 class="text-xl font-semibold text-gray-700">Pending Debts</h5>
+            <table class="min-w-full mt-4 table-auto">
+                <thead class="text-sm text-gray-600 uppercase bg-gray-200">
+                    <tr>
+                        <th class="py-3 px-6 text-left">Amount</th>
+                        <th class="py-3 px-6 text-left">Due Date</th>
+                        <th class="py-3 px-6 text-left">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm text-gray-700">
+                    <!-- Dummy Data -->
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-3 px-6">$300</td>
+                        <td class="py-3 px-6">2025-02-10</td>
+                        <td class="py-3 px-6 text-red-500">Pending</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-3 px-6">$100</td>
+                        <td class="py-3 px-6">2025-03-05</td>
+                        <td class="py-3 px-6 text-yellow-500">Pending</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Date Filter -->
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <h5 class="text-xl font-semibold text-gray-700">Filter Transactions by Date</h5>
+            <div class="flex items-center space-x-6 mt-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">From:</label>
+                    <input type="date" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">To:</label>
+                    <input type="date" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" />
+                </div>
+                <button class="py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 shadow-md">Filter</button>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+}

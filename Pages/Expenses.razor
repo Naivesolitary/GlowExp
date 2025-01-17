@@ -8,6 +8,11 @@
 	<div>
 		<label class="block text-sm font-medium text-gray-700">Amount:</label>
 		<input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newExpense.Amount" name="amount" />
+		<!-- Show warning if the balance is insufficient -->
+		@if (showWarning)
+		{
+			<p class="text-sm text-red-500 mt-2">Insufficient funds. You cannot add this expense.</p>
+		}
 	</div>
 
 	<div>
@@ -108,30 +113,35 @@
 
 	public Expense newExpense { get; set; } = new Expense();
 
-
-
+	private bool showWarning { get; set; } = false; // Flag to show the warning message
 
 	public void saveExpense()
 	{
-		TransactionService.AddTransaction(new Expense
-			{
-				Id = Guid.NewGuid(),
-				Amount = newExpense.Amount,
-				Category = newExpense.Category,
-				Date = newExpense.Date,
-				Tag = newExpense.Tag,
-				Account = newExpense.Account,
-				Note = newExpense.Note
-			});
+		// Check if the total income is enough for the expense
+		if (newExpense.Amount <= TransactionService.TotalIncomes)
+		{
+			// Create and add a new expense transaction
+			TransactionService.AddTransaction(new Expense
+				{
+					Id = Guid.NewGuid(),
+					Amount = newExpense.Amount,
+					Category = newExpense.Category,
+					Date = newExpense.Date,
+					Tag = newExpense.Tag,
+					Account = newExpense.Account,
+					Note = newExpense.Note
+				});
 
-
-
-
-
-
-
-
+			// Hide the warning message if the expense is added
+			showWarning = false;
+		}
+		else
+		{
+			// Show a warning message if the balance is insufficient
+			showWarning = true;
+		}
 	}
+
 
 	public void clear()
 	{

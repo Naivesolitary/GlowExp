@@ -90,12 +90,16 @@
 @code {
 
     public Debt newDebt { get; set; } = new Debt();
-    
+    private decimal totalDebt = 0; // Initialize total debt to 0
 
     public void saveDebt()
     {
         try
         {
+            // Calculate total debt by adding the new debt to the existing total
+            totalDebt += newDebt.Amount;
+
+            // Now save the debt transaction
             TransactionService.AddTransaction(new Debt
                 {
                     Id = Guid.NewGuid(),
@@ -107,7 +111,15 @@
                     Tag = newDebt.Tag,
                     Note = newDebt.Note
                 });
-        } catch(Exception ex){ Console.WriteLine($"Error saving income:{ex} "); };
+
+            // Optionally, display the total debt in the console or UI
+            Console.WriteLine($"Total Debt: {totalDebt}");
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving debt: {ex}");
+        }
     }
 
 
