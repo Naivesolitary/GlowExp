@@ -9,6 +9,7 @@ namespace GlowExp.Components.Data
         public string? Category { get; set; }
         public string? Account { get; set; }
 
+
     
 }
 }

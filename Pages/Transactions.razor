@@ -1,9 +1,207 @@
 ﻿@page "/transaction"
-<h3>Transactions</h3>
+@using GlowExp.Components.Data
+@inject TransactionService TransactionService
 
+<h3 class="font-sans font-bold text-sm/[20px]">All Transactions</h3>
 
+<!-- Filter Section -->
+<div class="flex items-center justify-between mt-6">
+    <h2 class="text-lg font-semibold">Transaction Records</h2>
+    <button class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-2 px-4 rounded"
+            @onclick="ToggleFilter">
+        <i class="fas fa-filter"></i> Filter
+    </button>
+</div>
+
+@if (showFilter)
+{
+    <div class="bg-gray-100 p-4 rounded mt-4">
+        <div class="grid grid-cols-3 gap-4">
+            <!-- Type Filter -->
+            <div>
+                <label class="block font-bold mb-2" for="filterType">Type</label>
+                <select id="filterType" class="w-full p-2 border rounded" @bind="filterType">
+                    <option value="">All</option>
+                    <option value="Income">Income</option>
+                    <option value="Expense">Expense</option>
+                    <option value="Debt">Debt</option>
+                </select>
+            </div>
+
+            <!-- Tag Filter -->
+            <div>
+                <label class="block font-bold mb-2" for="filterTag">Tag</label>
+                <input id="filterTag" type="text" class="w-full p-2 border rounded" @bind="filterTag" />
+            </div>
+
+            <!-- Date Range Filter -->
+            <div>
+                <label class="block font-bold mb-2" for="filterStartDate">Date Range</label>
+                <div class="flex items-center gap-2">
+                    <input id="filterStartDate" type="date" class="w-1/2 p-2 border rounded" @bind="filterStartDate" />
+                    <span>to</span>
+                    <input id="filterEndDate" type="date" class="w-1/2 p-2 border rounded" @bind="filterEndDate" />
+                </div>
+            </div>
+        </div>
+        <div class="mt-4 flex justify-end gap-2">
+            <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                    @onclick="ApplyFilters">
+                Apply
+            </button>
+            <button class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-2 px-4 rounded"
+                    @onclick="ResetFilters">
+                Reset
+            </button>
+        </div>
+    </div>
+}
+
+<!-- Table Section -->
+<table class="min-w-full bg-white shadow-md rounded-lg mt-6">
+    <thead>
+        <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+            <th class="py-3 px-6 text-left">Type</th>
+            <th class="py-3 px-6 text-left">Category</th>
+            <th class="py-3 px-6 text-left">Amount</th>
+            <th class="py-3 px-6 text-left">Tag</th>
+            <th class="py-3 px-6 text-left">Date</th>
+            <th class="py-3 px-6 text-left">Account/Source</th>
+            <th class="py-3 px-6 text-left">Note</th>
+        </tr>
+    </thead>
+    <tbody class="text-gray-700 text-sm">
+        @if (filteredTransactions.Any())
+        {
+            @foreach (var transaction in filteredTransactions)
+            {
+                <tr class="border-b border-gray-200 hover:bg-gray-100">
+                    <td class="py-3 px-6 text-left">
+                        @if (transaction is Income)
+                        {
+                            <span class="text-green-500">Income</span>
+                        }
+                        else if (transaction is Expense)
+                        {
+                            <span class="text-red-500">Expense</span>
+                        }
+                        else if (transaction is Debt)
+                        {
+                            <span class="text-blue-500">Debt</span>
+                        }
+                    </td>
+                    <td class="py-3 px-6 text-left">
+                        @if (transaction is Income income)
+                        {
+                            @income.Category
+                        }
+                        else if (transaction is Expense expense)
+                        {
+                            @expense.Category
+                        }
+                        else if (transaction is Debt debt)
+                        {
+                            <span>@debt.Tag</span>
+                        }
+                    </td>
+                    <td class="py-3 px-6 text-left">$@transaction.Amount</td>
+                    <td class="py-3 px-6 text-left">@transaction.Tag</td>
+                    <td class="py-3 px-6 text-left">@transaction.Date</td>
+
+                    <!-- Account/Source Column -->
+                    <td class="py-3 px-6 text-left">
+                        @if (transaction is Income incomeAccount)
+                        {
+                            @incomeAccount.Account
+                        }
+                        else if (transaction is Expense expenseAccount)
+                        {
+                            @expenseAccount.Account
+                        }
+                        else if (transaction is Debt debtAccount)
+                        {
+                            @debtAccount.Source
+                        }
+                    </td>
+
+                    <td class="py-3 px-6 text-left">@transaction.Note</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" class="text-center py-4">No transactions found</td>
+            </tr>
+        }
+    </tbody>
+</table>
 
 @code {
+    private bool showFilter = false;
+    private string? filterType = string.Empty;
+    private string? filterTag = string.Empty;
+    private DateTime? filterStartDate = null;
+    private DateTime? filterEndDate = null;
 
+    private List<TransactionBase> filteredTransactions = new();
 
+    protected override void OnInitialized()
+    {
+        // Load all transactions initially
+        filteredTransactions = TransactionService.GetAllTransactions();
+    }
+
+    private void ToggleFilter()
+    {
+        showFilter = !showFilter;
+    }
+
+    private void ApplyFilters()
+    {
+        // Start with all transactions
+        filteredTransactions = TransactionService.GetAllTransactions();
+
+        // Apply Type Filter (if not empty)
+        if (!string.IsNullOrWhiteSpace(filterType))
+        {
+            filteredTransactions = filteredTransactions
+                .Where(t => t.GetType().Name.Equals(filterType, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        // Apply Tag Filter (if not empty)
+        if (!string.IsNullOrWhiteSpace(filterTag))
+        {
+            filteredTransactions = filteredTransactions
+                .Where(t => !string.IsNullOrWhiteSpace(t.Tag) && t.Tag.Contains(filterTag, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        // Apply Date Range Filter (if start date is specified)
+        if (filterStartDate.HasValue)
+        {
+            filteredTransactions = filteredTransactions
+                .Where(t => t.Date >= filterStartDate.Value)
+                .ToList();
+        }
+
+        // Apply End Date Filter (if end date is specified)
+        if (filterEndDate.HasValue)
+        {
+            filteredTransactions = filteredTransactions
+                .Where(t => t.Date <= filterEndDate.Value)
+                .ToList();
+        }
+    }
+
+    private void ResetFilters()
+    {
+        // Reset all filters and reload all transactions
+        filterType = string.Empty;
+        filterTag = string.Empty;
+        filterStartDate = null;
+        filterEndDate = null;
+        filteredTransactions = TransactionService.GetAllTransactions();
+    }
 }

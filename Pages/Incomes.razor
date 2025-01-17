@@ -25,6 +25,12 @@
     </div>
 
     <div>
+        <label class="block text-sm font-medium text-gray-700">Tag:</label>
+        <input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newIncome.Tag" name="tag" />
+    </div>
+
+
+    <div>
         <label class="block text-sm font-medium text-gray-700">Account:</label>
         <select class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newIncome.Account">
             <option>Cash</option>
@@ -53,6 +59,7 @@
             <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                 <th class="py-3 px-6 text-left">Category</th>
                 <th class="py-3 px-6 text-left">Amount</th>
+                <th class="py-3 px-6 text-left">Tag</th>
                 <th class="py-3 px-6 text-left">Date</th>
                 <th class="py-3 px-6 text-left">Account</th>
                 <th class="py-3 px-6 text-left">Note</th>
@@ -69,6 +76,7 @@
 
                         <td class="py-3 px-6 text-left">@income.Category</td>
                         <td class="py-3 px-6 text-left">$@income.Amount</td>
+                        <td class="py-3 px-6 text-left">@income.Tag</td>
                         <td class="py-3 px-6 text-left">@income.Date</td>
                         <td class="py-3 px-6 text-left">@income.Account</td>
                         <td class="py-3 px-6 text-left">@income.Note</td>
@@ -106,7 +114,7 @@
 
     
     public Income newIncome { get; set; } = new Income();
-
+   
 
 
 
@@ -117,7 +125,9 @@
 				Id = Guid.NewGuid(),
 				Amount = newIncome.Amount,
 				Category = newIncome.Category,
+                Tag = newIncome.Tag,
 				Date = newIncome.Date,
+                getTransactionType = "Income",
 				Account = newIncome.Account,
 				Note = newIncome.Note
 			});

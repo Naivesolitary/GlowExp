@@ -27,6 +27,11 @@
 	</div>
 
 	<div>
+		<label class="block text-sm font-medium text-gray-700">Tag:</label>
+		<input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newExpense.Tag" name="tag" />
+	</div>
+
+	<div>
 		<label class="block text-sm font-medium text-gray-700">Account:</label>
 		<select class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newExpense.Account">
 			<option>Cash</option>
@@ -56,6 +61,7 @@
 				<th class="py-3 px-6 text-left">Category</th>
 				<th class="py-3 px-6 text-left">Amount</th>
 				<th class="py-3 px-6 text-left">Date</th>
+				<th class="py-3 px-6 text-left">Tag</th>
 				<th class="py-3 px-6 text-left">Account</th>
 				<th class="py-3 px-6 text-left">Note</th>
 			</tr>
@@ -72,6 +78,7 @@
 						<td class="py-3 px-6 text-left">@expense.Category</td>
 						<td class="py-3 px-6 text-left">@expense.Amount</td>
 						<td class="py-3 px-6 text-left">@expense.Date</td>
+						<td class="py-3 px-6 text-left">@expense.Tag</td>
 						<td class="py-3 px-6 text-left">@expense.Account</td>
 						<td class="py-3 px-6 text-left">@expense.Note</td>
 
@@ -112,6 +119,7 @@
 				Amount = newExpense.Amount,
 				Category = newExpense.Category,
 				Date = newExpense.Date,
+				Tag = newExpense.Tag,
 				Account = newExpense.Account,
 				Note = newExpense.Note
 			});

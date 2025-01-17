@@ -16,6 +16,15 @@
     </div>
 
     <div>
+        <label class="block text-sm font-medium text-gray-700">Category:</label>
+        <select class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newDebt.Category">
+            <option>Loan</option>
+            <option>EMI</option>
+            <option>Credit Card</option>
+        </select>
+    </div>
+
+    <div>
         <label class="block text-sm font-medium text-gray-700">Source:</label>
         <input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newDebt.Source" name="source" />
     </div>
@@ -49,6 +58,7 @@
             <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                 <th class="py-3 px-6 text-left">Amount</th>
                 <th class="py-3 px-6 text-left">Date</th>
+                <th class="py-3 px-6 text-left">Category</th>
                 <th class="py-3 px-6 text-left">Source</th>
                 <th class="py-3 px-6 text-left">Due Date</th>
                 <th class="py-3 px-6 text-left">Tag</th>
@@ -64,6 +74,7 @@
                     <tr class="border-b border-gray-200 hover:bg-gray-100">
                         <td class="py-3 px-6 text-left">$@debt.Amount</td>
                         <td class="py-3 px-6 text-left">@debt.Date</td>
+                        <td class="py-3 px-6 text-left">@debt.Category</td>
                         <td class="py-3 px-6 text-left">@debt.Source</td>
                         <td class="py-3 px-6 text-left">@debt.DueDate</td>
                         <td class="py-3 px-6 text-left">@debt.Tag</td>
@@ -90,6 +101,7 @@
                     Id = Guid.NewGuid(),
                     Amount = newDebt.Amount,
                     Source = newDebt.Source,
+                    Category = newDebt.Category,
                     Date = newDebt.Date,
                     DueDate = newDebt.DueDate,
                     Tag = newDebt.Tag,
