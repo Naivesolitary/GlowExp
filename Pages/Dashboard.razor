@@ -1,137 +1,302 @@
 ﻿@page "/dashboard"
 @using GlowExp.Components.Data
 @inject TransactionService TransactionService
+@inject UserProfileService UserProfileService
+@inject IJSRuntime JSRuntime
+
 <h3>Dashboard</h3>
 
-<div class="min-h-screen bg-gradient-to-r from-blue-100 via-indigo-200 to-purple-300">
-
-    <!-- Main Content Area -->
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
     <div class="p-8 space-y-12">
 
-        <!-- Header Section -->
+        <!-- Header -->
         <div class="text-center mb-12">
-            <h1 class="text-4xl font-semibold text-gray-800">Finance Dashboard</h1>
+            <h1 class="text-4xl font-semibold text-gray-900">Finance Dashboard</h1>
             <p class="mt-2 text-lg text-gray-600">Monitor your financial transactions and manage debts efficiently</p>
         </div>
 
-        <!-- Dashboard Overview -->
+        <!-- Dashboard Date Range Filter -->
+        <div class="bg-white shadow-xl rounded-xl p-6 transform transition-all duration-300 hover:shadow-2xl">
+            <h5 class="text-lg font-semibold text-gray-700 mb-4">Filter Dashboard Data</h5>
+            <div class="flex items-center space-x-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">From:</label>
+                    <input type="date" @bind="dashboardStartDate" class="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">To:</label>
+                    <input type="date" @bind="dashboardEndDate" class="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200" />
+                </div>
+                <button @onclick="ApplyDashboardFilter" class="mt-6 py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-md transition duration-200">
+                    Apply Dashboard Filter
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Metrics -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            <!-- Total Transactions -->
-            <div class="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+            <div class="bg-white shadow-xl rounded-xl p-6 transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
                 <h5 class="text-xl font-semibold text-gray-700">Total Transactions</h5>
-                <p class="text-4xl font-bold text-indigo-600 mt-4">$@TransactionService.TotalTransactionsValue</p> 
+                <p class="text-4xl font-bold text-indigo-600 mt-4">@UserProfileService.GetPreferredCurrencyCode() @FilteredTotalTransactionsValue.ToString("N2")</p>
             </div>
-
-            <!-- Net Transactions -->
-            <div class="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+            <div class="bg-white shadow-xl rounded-xl p-6 transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
                 <h5 class="text-xl font-semibold text-gray-700">No of Transactions</h5>
-                <p class="text-4xl font-bold text-green-600 mt-4">
-                    @TransactionService.TotalTransactions
-                </p> 
+                <p class="text-4xl font-bold text-green-600 mt-4">@FilteredTotalTransactions</p>
             </div>
-
-            <!-- Total Debt -->
-            <div class="bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
-                <h5 class="text-xl font-semibold text-gray-700">Total Debt</h5>
-                <p class="text-4xl font-bold text-red-600 mt-4">@TransactionService.TotalDebts</p>
+            <div class="bg-white shadow-xl rounded-xl p-6 transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+                <h5 class="text-xl font-semibold text-gray-700">Remaining Debt</h5>
+                <p class="text-4xl font-bold text-yellow-600 mt-4">@UserProfileService.GetPreferredCurrencyCode() @FilteredRemainingDebts.ToString("N2")</p>
+            </div>
+            <div class="bg-white shadow-xl rounded-xl p-6 transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+                <h5 class="text-lg font-semibold text-gray-700">Current Balance</h5>
+                <p class="text-3xl font-bold text-gray-800 mt-4">@UserProfileService.GetPreferredCurrencyCode() @FilteredCurrentBalance.ToString("F1")</p>
             </div>
         </div>
 
         <!-- Financial Breakdown -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Inflows -->
-            <div class="bg-green-100 shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+            <div class="bg-green-50 shadow-xl rounded-xl p-6 transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
                 <h5 class="text-lg font-semibold text-gray-700">Total Inflows</h5>
-                <p class="text-3xl font-bold text-green-700 mt-4">@TransactionService.TotalIncomes</p>
+                <p class="text-3xl font-bold text-green-700 mt-4">@UserProfileService.GetPreferredCurrencyCode() @FilteredTotalIncomes.ToString("N2")</p>
             </div>
-
-            <!-- Outflows -->
-            <div class="bg-red-100 shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+            <div class="bg-red-50 shadow-xl rounded-xl p-6 transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
                 <h5 class="text-lg font-semibold text-gray-700">Total Outflows</h5>
-                <p class="text-3xl font-bold text-red-700 mt-4">@TransactionService.TotalExpenses</p> 
+                <p class="text-3xl font-bold text-red-700 mt-4"> @UserProfileService.GetPreferredCurrencyCode() @FilteredTotalExpenses.ToString("N2")</p>
             </div>
-
-            <!-- Cleared Debt -->
-            <div class="bg-blue-100 shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+            <div class="bg-blue-50 shadow-xl rounded-xl p-6 transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
                 <h5 class="text-lg font-semibold text-gray-700">Cleared Debt</h5>
-                <p class="text-3xl font-bold text-blue-700 mt-4">0</p> 
+                <p class="text-3xl font-bold text-blue-700 mt-4"> @UserProfileService.GetPreferredCurrencyCode() @FilteredClearedDebts.ToString("N2")</p>
             </div>
-
-            <!-- Remaining Debt -->
-            <div class="bg-yellow-100 shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
+            <div class="bg-yellow-50 shadow-xl rounded-xl p-6 transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
                 <h5 class="text-lg font-semibold text-gray-700">Remaining Debt</h5>
-                <p class="text-3xl font-bold text-yellow-700 mt-4">$@TransactionService.TotalDebts</p> 
+                <p class="text-3xl font-bold text-yellow-700 mt-4">@UserProfileService.GetPreferredCurrencyCode() @FilteredRemainingDebts.ToString("N2")</p>
             </div>
         </div>
 
-        <!-- Transaction Insights -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Highest Inflow -->
-            <div class="bg-green-200 shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
-                <h5 class="text-lg font-semibold text-gray-700">Highest Inflow</h5>
-                <p class="text-3xl font-bold text-green-800 mt-4">$@TransactionService.HighestInflow</p> 
-            </div>
-
-            <!-- Highest Outflow -->
-            <div class="bg-red-200 shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
-                <h5 class="text-lg font-semibold text-gray-700">Highest Outflow</h5>
-                <p class="text-3xl font-bold text-red-800 mt-4">$@TransactionService.HighestOutflow</p> 
-            </div>
-
-            <!-- Highest Debt -->
-            <div class="bg-yellow-200 shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
-                <h5 class="text-lg font-semibold text-gray-700">Highest Debt</h5>
-                <p class="text-3xl font-bold text-yellow-800 mt-4">$@TransactionService.HighestDebt</p> 
+        <!-- Transaction Type Filter -->
+        <div class="bg-white shadow-xl rounded-xl p-6 transform transition-all duration-300 hover:shadow-2xl">
+            <h5 class="text-lg font-semibold text-gray-700 mb-4">Filter by Transaction Type</h5>
+            <div class="flex items-center space-x-6">
+                <select @bind="selectedTransactionType" class="mt-1 block w-48 border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200">
+                    <option value="">All Types</option>
+                    <option value="Income">Income</option>
+                    <option value="Expense">Expense</option>
+                    <option value="Debt">Debt</option>
+                </select>
+                <button @onclick="ApplyDashboardFilter" class="py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-md transition duration-200">
+                    Apply Type Filter
+                </button>
             </div>
         </div>
 
-        <!-- Pending Debts -->
-        <div class="bg-white shadow-lg rounded-lg p-6">
-            <h5 class="text-xl font-semibold text-gray-700">Pending Debts</h5>
-            <table class="min-w-full mt-4 table-auto">
-                <thead class="text-sm text-gray-600 uppercase bg-gray-200">
+        <!-- Top Transactions -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- Top 5 Highest Transactions -->
+            <div class="bg-white shadow-xl rounded-xl p-6 w-full max-w-full transform transition-all duration-300 hover:shadow-2xl">
+                <h5 class="text-xl font-semibold text-gray-700">Top 5 Highest Transactions</h5>
+                <table class="w-full mt-4 table-fixed">
+                    <thead class="text-sm text-gray-600 uppercase bg-gray-100 rounded-lg">
+                        <tr>
+                            <th class="py-3 px-4 text-left w-2/5">Title</th>
+                            <th class="py-3 px-4 text-left w-1/5">Type</th>
+                            <th class="py-3 px-4 text-left w-1/5">Amount</th>
+                            <th class="py-3 px-4 text-left w-1/5">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-gray-700">
+                        @foreach (var transaction in FilteredTop5HighestTransactions)
+                        {
+                            <tr class="hover:bg-gray-50 transition duration-200">
+                                <td class="py-2 px-4 break-words whitespace-normal truncate" title="@transaction.Tag">@transaction.Tag</td>
+                                <td class="py-2 px-4">@GetTransactionType(transaction)</td>
+                                <td class="py-2 px-4">@UserProfileService.GetPreferredCurrencyCode() @transaction.Amount.ToString("N2")</td>
+                                <td class="py-2 px-4">@transaction.Date.ToShortDateString()</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Top 5 Lowest Transactions -->
+            <div class="bg-white shadow-xl rounded-xl p-6 w-full max-w-full transform transition-all duration-300 hover:shadow-2xl">
+                <h5 class="text-xl font-semibold text-gray-700">Top 5 Lowest Transactions</h5>
+                <table class="w-full mt-4 table-fixed">
+                    <thead class="text-sm text-gray-600 uppercase bg-gray-100 rounded-lg">
+                        <tr>
+                            <th class="py-3 px-4 text-left w-2/5">Title</th>
+                            <th class="py-3 px-4 text-left w-1/5">Type</th>
+                            <th class="py-3 px-4 text-left w-1/5">Amount</th>
+                            <th class="py-3 px-4 text-left w-1/5">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-gray-700">
+                        @foreach (var transaction in FilteredTop5LowestTransactions)
+                        {
+                            <tr class="hover:bg-gray-50 transition duration-200">
+                                <td class="py-2 px-4 break-words whitespace-normal truncate" title="@transaction.Tag">@transaction.Tag</td>
+                                <td class="py-2 px-4">@GetTransactionType(transaction)</td>
+                                <td class="py-2 px-4">@UserProfileService.GetPreferredCurrencyCode() @transaction.Amount.ToString("N2")</td>
+                                <td class="py-2 px-4">@transaction.Date.ToShortDateString()</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pending Debts with its own filter -->
+        <div class="bg-white shadow-xl rounded-xl p-6 transform transition-all duration-300 hover:shadow-2xl">
+            <h5 class="text-xl font-semibold text-gray-700 mb-4">Pending Debts </h5>
+            <div class="flex items-center space-x-6 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">From:</label>
+                    <input type="date" @bind="pendingStartDate" class="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">To:</label>
+                    <input type="date" @bind="pendingEndDate" class="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200" />
+                </div>
+                <button @onclick="FilterPendingDebts" class="mt-6 py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-md transition duration-200">
+                    Filter Pending
+                </button>
+            </div>
+
+            <table class="min-w-full mt-2 table-auto">
+                <thead class="text-sm text-gray-600 uppercase bg-gray-100 rounded-lg">
                     <tr>
                         <th class="py-3 px-6 text-left">Amount</th>
+                        <th class="py-3 px-6 text-left">Tag</th>
                         <th class="py-3 px-6 text-left">Due Date</th>
                         <th class="py-3 px-6 text-left">Status</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm text-gray-700">
-                    <!-- Dummy Data -->
-                    <tr class="hover:bg-gray-50">
-                        <td class="py-3 px-6">$300</td>
-                        <td class="py-3 px-6">2025-02-10</td>
-                        <td class="py-3 px-6 text-red-500">Pending</td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="py-3 px-6">$100</td>
-                        <td class="py-3 px-6">2025-03-05</td>
-                        <td class="py-3 px-6 text-yellow-500">Pending</td>
-                    </tr>
+                    @foreach (var debt in filteredPendingDebts)
+                    {
+                        <tr class="hover:bg-gray-50 transition duration-200">
+                            <td class="py-3 px-6">@UserProfileService.GetPreferredCurrencyCode() @debt.Amount.ToString("N2")</td>
+                            <td class="py-3 px-6">@debt.Tag</td>
+                            <td class="py-3 px-6">@debt.DueDate.ToShortDateString()</td>
+                            <td class="py-3 px-6 text-red-500">Pending</td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
 
-        <!-- Date Filter -->
-        <div class="bg-white shadow-lg rounded-lg p-6">
-            <h5 class="text-xl font-semibold text-gray-700">Filter Transactions by Date</h5>
-            <div class="flex items-center space-x-6 mt-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">From:</label>
-                    <input type="date" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" />
+        <!-- Financial Overview Pie Chart -->
+        <div class="bg-white shadow-xl rounded-xl p-6 transform transition-all duration-300 hover:shadow-2xl">
+            <h3 class="text-xl font-semibold text-gray-700 mb-6">Financial Overview</h3>
+            <div class="flex justify-center">
+                <div style="width: 400px; height: 400px;">
+                    <canvas id="financialPieChart" width="400" height="400"></canvas>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">To:</label>
-                    <input type="date" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" />
-                </div>
-                <button class="py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 shadow-md">Filter</button>
             </div>
         </div>
-
     </div>
-
 </div>
 
 @code {
+    // Separate filter states
+    private DateOnly dashboardStartDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(-1));
+    private DateOnly dashboardEndDate = DateOnly.FromDateTime(DateTime.Now);
+    private DateOnly pendingStartDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(-1));
+    private DateOnly pendingEndDate = DateOnly.FromDateTime(DateTime.Now);
+    private string selectedTransactionType = "";
 
+    private List<Debt> filteredPendingDebts = new();
+    private List<TransactionBase> filteredTransactions = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var currencyCode = UserProfileService.GetPreferredCurrencyCode();
+            await JSRuntime.InvokeVoidAsync("setCurrencyCode", currencyCode);
+            await UpdatePieChart();
+        }
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        await ApplyDashboardFilter();
+        FilterPendingDebts();
+    }
+
+    private async Task ApplyDashboardFilter()
+    {
+        var transactions = TransactionService.GetAllTransactions()
+            .Where(t => t.Date >= dashboardStartDate && t.Date <= dashboardEndDate);
+
+        if (!string.IsNullOrEmpty(selectedTransactionType))
+        {
+            transactions = transactions.Where(t => t.GetType().Name == selectedTransactionType);
+        }
+
+        filteredTransactions = transactions.ToList();
+
+        // Update the pie chart after filtering
+        await UpdatePieChart();
+        StateHasChanged();
+    }
+
+    private void FilterPendingDebts()
+    {
+        filteredPendingDebts = TransactionService.GetPendingDebts()
+            .Where(d => d.DueDate >= pendingStartDate && d.DueDate <= pendingEndDate)
+            .ToList();
+    }
+
+    private async Task UpdatePieChart()
+    {
+        try
+        {
+            var chartData = new
+            {
+                labels = new[] { "Income", "Expenses", "Remaining Debt" },
+                datasets = new[]
+                {
+                    new
+                    {
+                        data = new[] { (double)FilteredTotalIncomes, (double)FilteredTotalExpenses, (double)FilteredRemainingDebts },
+                        backgroundColor = new[] { "#10B981", "#EF4444", "#F59E0B" },
+                        borderColor = new[] { "#059669", "#DC2626", "#D97706" },
+                        borderWidth = 2
+                    }
+                }
+            };
+
+            await JSRuntime.InvokeVoidAsync("updatePieChart", chartData);
+        }
+        catch (Exception ex)
+        {
+            // Handle any JavaScript interop errors
+            Console.WriteLine($"Error updating pie chart: {ex.Message}");
+        }
+    }
+
+    private string GetTransactionType(TransactionBase transaction)
+    {
+        return transaction switch
+        {
+            Income _ => "Income",
+            Expense _ => "Expense",
+            Debt _ => "Debt",
+            _ => "Unknown"
+        };
+    }
+
+    private decimal FilteredTotalIncomes => filteredTransactions.OfType<Income>().Sum(t => t.Amount);
+    private decimal FilteredTotalExpenses => filteredTransactions.OfType<Expense>().Sum(t => t.Amount);
+    private decimal FilteredClearedDebts => filteredTransactions.OfType<Debt>().Where(d => d.IsCleared).Sum(t => t.Amount);
+    private decimal FilteredRemainingDebts => filteredTransactions.OfType<Debt>().Where(d => !d.IsCleared).Sum(t => t.Amount);
+    private decimal FilteredCurrentBalance => Math.Max(FilteredTotalIncomes - FilteredTotalExpenses - FilteredClearedDebts, 0);
+    private int FilteredTotalTransactions => filteredTransactions.Count;
+    private decimal FilteredTotalTransactionsValue => FilteredTotalIncomes - FilteredTotalExpenses - FilteredClearedDebts;
+
+    private List<TransactionBase> FilteredTop5HighestTransactions =>
+        filteredTransactions.OrderByDescending(t => t.Amount).Take(5).ToList();
+
+    private List<TransactionBase> FilteredTop5LowestTransactions =>
+        filteredTransactions.OrderBy(t => t.Amount).Take(5).ToList();
 }

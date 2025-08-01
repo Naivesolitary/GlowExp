@@ -6,7 +6,9 @@ namespace GlowExp.Components.Data
        
         public string? Category { get; set;}
         public string? Source { get; set; }
-        public DateTime DueDate{ get; set; }
+        public DateOnly DueDate{ get; set; }
+
+        public bool IsCleared { get; set; } = false;
         
 
     }

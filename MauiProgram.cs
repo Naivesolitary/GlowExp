@@ -1,5 +1,9 @@
-﻿using GlowExp.Components.Data;
+﻿
+using GlowExp.Components.Data;
 using Microsoft.Extensions.Logging;
+
+
+
 
 namespace GlowExp
 {
@@ -10,17 +14,34 @@ namespace GlowExp
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+              
+                
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
 
+       
+
             builder.Services.AddMauiBlazorWebView();
 
-#if DEBUG
-    		builder.Services.AddBlazorWebViewDeveloperTools();
-    		builder.Logging.AddDebug();
+
+
+
             builder.Services.AddSingleton<TransactionService>();
+            builder.Services.AddSingleton<UserProfileService>();
+
+
+
+
+
+
+
+
+#if DEBUG
+            builder.Services.AddBlazorWebViewDeveloperTools();
+    		builder.Logging.AddDebug();
+           
 #endif
 
             return builder.Build();

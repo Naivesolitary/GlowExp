@@ -1,131 +1,225 @@
 ﻿@page "/debt"
 @using GlowExp.Components.Data
+@using GlowExp.Components.Helpers
 @inject TransactionService TransactionService
+@inject UserProfileService UserProfileService
 
-<h3 class="">Debts</h3>
+<h3 class="text-2xl font-bold text-gray-800 mb-4">DEBTS</h3>
 
-<form class="space-y-6 bg-white shadow-md rounded-lg p-6" @onsubmit="saveDebt">
-    <div>
-        <label class="block text-sm font-medium text-gray-700">Date:</label>
-        <input type="date" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newDebt.Date" name="date" />
-    </div>
+<div class="w-full max-w-7xl mx-auto px-4 py-8">
+    <form class="mx-auto space-y-8 bg-white shadow-2xl rounded-2xl p-10 max-w-4xl border border-gray-200" @onsubmit="saveDebt">
+        <div class="grid md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Amount:</label>
+                <input type="text" class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newDebt.Amount" name="amount" />
+            </div>
 
-    <div>
-        <label class="block text-sm font-medium text-gray-700">Amount:</label>
-        <input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newDebt.Amount" name="amount" />
-    </div>
-
-    <div>
-        <label class="block text-sm font-medium text-gray-700">Category:</label>
-        <select class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newDebt.Category">
-            <option>Loan</option>
-            <option>EMI</option>
-            <option>Credit Card</option>
-        </select>
-    </div>
-
-    <div>
-        <label class="block text-sm font-medium text-gray-700">Source:</label>
-        <input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newDebt.Source" name="source" />
-    </div>
-
-    <div>
-        <label class="block text-sm font-medium text-gray-700">Tag:</label>
-        <input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newDebt.Tag" name="tag" />
-    </div>
-
-    <div>
-        <label class="block text-sm font-medium text-gray-700">Due Date:</label>
-        <input type="date" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newDebt.DueDate" name="dueDate" />
-    </div>
-
-    <div>
-        <label class="block text-sm font-medium text-gray-700">Note:</label>
-        <input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newDebt.Note" name="note" />
-    </div>
-
-    <div class="flex space-x-4">
-        <button class="py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-md" type="submit">Save</button>
-        <button class="py-2 px-4 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 shadow-md" type="reset">Continue</button>
-        <button class="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md" type="button" @onclick="clear">Delete All Debts</button>
-    </div>
-</form>
-
-<div class="mt-6">
-    <h2 class="text-lg font-semibold mb-4">Debt Records</h2>
-    <table class="min-w-full bg-white shadow-md rounded-lg">
-        <thead>
-            <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                <th class="py-3 px-6 text-left">Amount</th>
-                <th class="py-3 px-6 text-left">Date</th>
-                <th class="py-3 px-6 text-left">Category</th>
-                <th class="py-3 px-6 text-left">Source</th>
-                <th class="py-3 px-6 text-left">Due Date</th>
-                <th class="py-3 px-6 text-left">Tag</th>
-                <th class="py-3 px-6 text-left">Note</th>
-                <th class="py-3 px-6 text-left">Status</th>
-            </tr>
-        </thead>
-        <tbody class="text-gray-700 text-sm">
-            @if (TransactionService.GetTransactionByType<Debt>().Any())
-            {
-                @foreach (var debt in TransactionService.GetTransactionByType<Debt>())
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Category:</label>
+                <select class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newDebt.Category" name="category">
+                    <option disabled selected>Select Category</option>
+                    <option>Loan</option>
+                    <option>EMI</option>
+                    <option>Credit Card</option>
+                </select>
+                @if (!string.IsNullOrEmpty(categoryError))
                 {
-                    <tr class="border-b border-gray-200 hover:bg-gray-100">
-                        <td class="py-3 px-6 text-left">$@debt.Amount</td>
-                        <td class="py-3 px-6 text-left">@debt.Date</td>
-                        <td class="py-3 px-6 text-left">@debt.Category</td>
-                        <td class="py-3 px-6 text-left">@debt.Source</td>
-                        <td class="py-3 px-6 text-left">@debt.DueDate</td>
-                        <td class="py-3 px-6 text-left">@debt.Tag</td>
-                        <td class="py-3 px-6 text-left">@debt.Note</td>
-                        <td class="py-3 px-6 text-left">Pending</td>
-                    </tr>
+                    <span class="text-red-500 text-sm mt-1 block">@categoryError</span>
                 }
-            }
-        </tbody>
-    </table>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Date:</label>
+                <input type="date" class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newDebt.Date" name="date" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Source:</label>
+                <input type="text" class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newDebt.Source" name="source" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Tag:</label>
+                <select class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2"
+                        @onchange=" e => TagInputHelper.HandleTagChange(e, newDebt, visible => showCustomTagInput = visible,tag => newDebt.Tag = tag )">
+                    <option disabled selected value="">Select Tag</option>
+                    @foreach (var tag in debtTagOptions)
+                    {
+                        <option value="@tag">@tag</option>
+                    }
+                    <option value="custom">+ Add Custom Tag</option>
+                </select>
+
+                @if (showCustomTagInput)
+                {
+                    <input type="text"
+                           class="mt-2 w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2"
+                           placeholder="Enter custom tag"
+                           value=""
+                           @oninput=" e => TagInputHelper.UpdateCustomTag(e,newDebt, tag => {
+                            customTagInput = tag;
+                            newDebt.Tag = tag;} )" />
+                }
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Due Date:</label>
+                <input type="date" class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newDebt.DueDate" name="duedate" />
+            </div>
+
+            <div class="md:col-span-2">
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Note:</label>
+                <input type="text" class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newDebt.Note" name="note" />
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-4 mt-8">
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-md" type="submit">
+                    Save
+                </button>
+                <button class="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition shadow-md" type="reset">
+                    Continue
+                </button>
+                <button class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow-md" type="button" @onclick="clear">
+                    Delete All Debts
+                </button>
+            </div>
+
+            <div class="px-6 py-2 text-white rounded-lg bg-emerald-600 shadow-md text-center">
+                Current Balance: <span class="font-semibold">@UserProfileService.GetPreferredCurrencyCode() @TransactionService.getCurrentBalance()</span>
+            </div>
+        </div>
+    </form>
+
+    @if (showAlert)
+    {
+        <div class="mt-6 max-w-xl mx-auto bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative shadow-md">
+            <strong class="font-bold">⚠️ Alert:</strong>
+            <span class="block sm:inline">@alertMessage</span>
+            <button @onclick="() => showAlert = false"
+                    class="absolute top-0 bottom-0 right-0 px-4 py-3 text-red-700 hover:text-red-900">
+                ×
+            </button>
+        </div>
+    }
+
+    <div class="mt-12 overflow-x-auto">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Debt Records</h2>
+        <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden table-fixed">
+            <thead>
+                <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                    <th class="py-3 px-6 text-left w-1/6">Category</th>
+                    <th class="py-3 px-6 text-left w-1/6">Amount</th>
+                    <th class="py-3 px-6 text-left w-1/6">Source</th>
+                    <th class="py-3 px-6 text-left w-1/6">Date</th>
+                    <th class="py-3 px-6 text-left w-1/6">Due Date</th>
+                    <th class="py-3 px-6 text-left w-1/6">Tag</th>
+                    <th class="py-3 px-6 text-left w-1/6">Note</th>
+                    <th class="py-3 px-6 text-left w-1/6">Status</th>
+                    <th class="py-3 px-6 text-left w-1/6">Action</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-700 text-sm divide-y divide-gray-200">
+                @if (TransactionService.GetTransactionByType<Debt>().Any())
+                {
+                    @foreach (var debt in TransactionService.GetTransactionByType<Debt>())
+                    {
+                        <tr class="hover:bg-gray-50 group">
+                            <td class="py-3 px-6 break-words">@debt.Category</td>
+                            <td class="py-3 px-6 break-words">@UserProfileService.GetPreferredCurrencyCode() @debt.Amount</td>
+                            <td class="py-3 px-6 break-words">@debt.Source</td>
+                            <td class="py-3 px-6 whitespace-nowrap">@debt.Date.ToString("yyyy-MM-dd")</td>
+                            <td class="py-3 px-6 whitespace-nowrap">@debt.DueDate.ToString("yyyy-MM-dd")</td>
+                            <td class="py-3 px-6 break-words">@debt.Tag</td>
+                            <td class="py-3 px-6 break-words">@debt.Note</td>
+                            <td class="py-3 px-6">@((debt.IsCleared) ? "Cleared" : "Pending")</td>
+                            <td class="py-3 px-6 relative">
+                                @if (!debt.IsCleared)
+                                {
+                                    <button @onclick="() => clearDebt(debt)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-red-600 text-white rounded-lg px-3 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        Clear
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @code {
-
-    public Debt newDebt { get; set; } = new Debt();
-    private decimal totalDebt = 0; // Initialize total debt to 0
+    public Debt newDebt { get; set; } = new Debt() {  Date = DateOnly.FromDateTime(DateTime.Today), DueDate = DateOnly.FromDateTime(DateTime.Today) };
+    public string? categoryError { get; set; }
+    private decimal totalDebt = 0;
+    private string alertMessage = string.Empty;
+    private bool showAlert = false;
+    private List<string> debtTagOptions = new()
+{
+    "Personal Loan",
+    "Home Loan",
+    "Medical Emergency",
+    "Education",
+    "Business Loan",
+    "Bill Overdue",
+    "Mortgage"
+};
+    private bool showCustomTagInput = false;
+    private string? customTagInput;
 
     public void saveDebt()
     {
-        try
+        categoryError = string.IsNullOrEmpty(newDebt.Category) ? "Please select a category" : null;
+        if (string.IsNullOrEmpty(categoryError))
         {
-            // Calculate total debt by adding the new debt to the existing total
-            totalDebt += newDebt.Amount;
+            try
+            {
+                totalDebt += newDebt.Amount;
 
-            // Now save the debt transaction
-            TransactionService.AddTransaction(new Debt
-                {
-                    Id = Guid.NewGuid(),
-                    Amount = newDebt.Amount,
-                    Source = newDebt.Source,
-                    Category = newDebt.Category,
-                    Date = newDebt.Date,
-                    DueDate = newDebt.DueDate,
-                    Tag = newDebt.Tag,
-                    Note = newDebt.Note
-                });
+                TransactionService.AddTransaction(new Debt
+                    {
+                        Id = Guid.NewGuid(),
+                        Amount = newDebt.Amount,
+                        Source = newDebt.Source,
+                        Category = newDebt.Category,
+                        Date = newDebt.Date,
+                        DueDate = newDebt.DueDate,
+                        getTransactionType = "Debt",
+                        Tag = newDebt.Tag,
+                        Note = newDebt.Note
+                    });
 
-            // Optionally, display the total debt in the console or UI
-            Console.WriteLine($"Total Debt: {totalDebt}");
-
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error saving debt: {ex}");
+                Console.WriteLine($"Total Debt: {totalDebt}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving debt: {ex}");
+            }
         }
     }
 
+    public void clearDebt(Debt debt)
+    {
+        bool cleared = TransactionService.ClearDebtAndSave(debt);
+
+        if (!cleared)
+        {
+            alertMessage = "❌ Not enough balance to clear this debt. Please add more income.";
+            showAlert = true;
+        }
+        else
+        {
+            alertMessage = string.Empty;
+            showAlert = false;
+        }
+
+        StateHasChanged();
+    }
 
     public void clear()
-
     {
-        TransactionService.GetTransactionByType<Debt>().Clear();
+        TransactionService.ClearTransactions<Debt>();
     }
 }

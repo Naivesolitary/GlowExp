@@ -1,0 +1,65 @@
+﻿@page "/settings"
+@inject UserProfileService UserProfileService
+@inject NavigationManager NavigationManager
+
+<h2 class="text-2xl font-bold mb-4">User Settings</h2>
+
+@if (_profile != null)
+{
+        <div class="space-y-4">
+            <div>
+                <label>Username:</label>
+                <input type="text" @bind="_profile.Username" class="border px-2 py-1 rounded w-full" />
+            </div>
+
+            <div>
+                <label>Password:</label>
+                <input type="password" @bind="_profile.Password" class="border px-2 py-1 rounded w-full" />
+            </div>
+
+            <div>
+                <label>Preferred Currency:</label>
+                <select @bind="_profile.PreferredCurrency" class="border px-2 py-1 rounded w-full">
+                    <option value="USD">USD</option>
+                    <option value="NPR">NPR</option>
+                    <option value="EUR">EUR</option>
+                    <option value="INR">INR</option>
+                </select>
+            </div>
+
+            <button @onclick="UpdateProfile" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Save Changes</button>
+            <button @onclick="DeleteAccount" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 ml-2">Delete Account</button>
+        </div>
+}
+else
+{
+        <p class="text-red-600">Profile not loaded.</p>
+}
+
+@code {
+    private UserProfile? _profile;
+
+    protected override void OnInitialized()
+    {
+        _profile = UserProfileService.GetProfile();
+    }
+
+
+    private void UpdateProfile()
+    {
+        if (_profile == null) return;
+
+        var setting = new ProfileSetting();
+        setting.OverwriteProfile(_profile); // new method
+        UserProfileService.RefreshProfile();
+        NavigationManager.NavigateTo("/dashboard", forceLoad: true);
+    }
+
+    private void DeleteAccount()
+    {
+        var setting = new ProfileSetting();
+        setting.DeleteProfile();
+        UserProfileService.Clear();
+        NavigationManager.NavigateTo("/", forceLoad: true);
+    }
+}

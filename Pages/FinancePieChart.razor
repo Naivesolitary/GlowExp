@@ -1,0 +1,35 @@
+﻿@using LiveChartsCore
+@using LiveChartsCore.SkiaSharpView
+@using LiveChartsCore.SkiaSharpView.Painting
+@using SkiaSharp
+
+<PieChart 
+    Series="@Series"
+    Width="300"
+    Height="300"
+    LegendPosition="LiveChartsCore.Measure.LegendPosition.Right" />
+
+
+@code {
+    public ISeries[] Series { get; set; } = new ISeries[]
+    {
+        new PieSeries<double>
+        {
+            Name = "Income",
+            Values = new double[] { 500 },
+            Fill = new SolidColorPaint(SKColors.Green)
+        },
+        new PieSeries<double>
+        {
+            Name = "Expense",
+            Values = new double[] { 300 },
+            Fill = new SolidColorPaint(SKColors.Red)
+        },
+        new PieSeries<double>
+        {
+            Name = "Debt",
+            Values = new double[] { 200 },
+            Fill = new SolidColorPaint(SKColors.Orange)
+        }
+    };
+}

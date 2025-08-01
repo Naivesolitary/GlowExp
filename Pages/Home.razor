@@ -1,5 +1,134 @@
 ﻿@page "/"
+@inject UserProfileService UserProfileService
 
-<h1 class="bg-emerald-500">Hello, world!</h1>
+@* <h1 class="bg-emerald-500">Hello, world!</h1> *@
 
-Welcome to your new app.
+
+<div>
+    @*  <div style="
+    background-image: url('/Images/galaxy.png');
+    background-size: cover;
+    background-position: center;
+    width: 500px;
+    height: 300px;
+">
+    </div> *@
+
+    <pre style="font-family: monospace; color: rebeccapurple; font-size: 7px; align-items: center">
+
+
+
+        ▄██████▄   ▄█        ▄██████▄   ▄█     █▄     ▄████████ ▀████    ▐████▀    ▄███████▄ 
+        ███    ███ ███       ███    ███ ███     ███   ███    ███   ███▌   ████▀    ███    ███ 
+        ███    █▀  ███       ███    ███ ███     ███   ███    █▀     ███  ▐███      ███    ███ 
+        ███        ███       ███    ███ ███     ███  ▄███▄▄▄        ▀███▄███▀      ███    ███ 
+        ███ ████▄  ███       ███    ███ ███     ███ ▀▀███▀▀▀        ████▀██▄     ▀█████████▀  
+        ███    ███ ███       ███    ███ ███     ███   ███    █▄    ▐███  ▀███      ███        
+        ███    ███ ███▌    ▄ ███    ███ ███ ▄█▄ ███   ███    ███  ▄███     ███▄    ███        
+        ████████▀  █████▄▄██  ▀██████▀   ▀███▀███▀    ██████████ ████       ███▄  ▄████▀      
+        ▀                                                                          
+
+
+
+
+
+    </pre>
+</div>
+
+@*   <p class="bg-emerald-500">Welcome to your new app.</p>
+<h1 style="font-family: 'Orbitron', sans-serif;">Orbitron Font</h1>
+<h1 class="font-grotesk text-xl">Hello with Space Grotesk</h1> *@
+
+
+@if (!profileExists && !isSaved)
+{
+    <div class="mt-8 p-6 w-full max-w-md mx-auto border border-gray-300 rounded-xl bg-white shadow-lg">
+        <h2 class="text-xl font-bold mb-4 text-center text-gray-800">Initial Setup</h2>
+
+        <div class="mb-4">
+            <label class="block text-gray-700">Username:</label>
+            <input type="text" @bind="username" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300" />
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700">Password:</label>
+            <input type="password" @bind="password" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300" />
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700">Currency:</label>
+            <select @bind="currency" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300">
+                <option value="USD">$ - USD</option>
+                <option value="NPR">रु - NPR</option>
+                <option value="EUR">€ - EUR</option>
+                <option value="INR">₹ - INR</option>
+            </select>
+
+        </div>
+
+        <button @onclick="SaveProfile" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition duration-200">
+            Save and Continue
+        </button>
+    </div>
+} else {
+
+
+    <div class="mt-10 text-center text-2xl font-bold ">
+        🔥 Welcome back, <span class="text-indigo-500 ">@UserProfileService.GetUsername()</span>! Time to own your expenses.
+    </div>
+
+}
+
+@code {
+
+    private string username = string.Empty;
+    private string password = string.Empty;
+    private string currency = "USD";
+    private bool isSaved = false;
+    private bool profileExists = false;
+
+
+
+
+
+
+    protected override void OnInitialized()
+    {
+        var setting = new ProfileSetting();
+        var profile = setting.LoadProfile();
+        profileExists = setting.ProfileExists();
+
+        // if (profileExists)
+        // {
+        //     NavigationManager.NavigateTo("/dashboard");
+        // }
+    }
+
+    private  void SaveProfile()
+    {
+        var profile = new UserProfile
+            {
+                Username = username,
+                Password = password,
+                PreferredCurrency = currency
+            };
+
+        var profileSetting = new ProfileSetting();
+        profileSetting.SaveProfile(profile);
+        UserProfileService.RefreshProfile();
+
+
+        isSaved = true;
+        
+
+        // Redirect or update UI here
+        NavigationManager.NavigateTo("/dashboard"); // Example
+    }
+
+    [Inject] public NavigationManager NavigationManager { get; set; }
+
+    
+
+}
+
+

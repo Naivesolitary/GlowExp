@@ -1,153 +1,197 @@
-﻿@page "/expense"
+﻿@page "/expense" 
 @using GlowExp.Components.Data
+@using GlowExp.Components.Helpers
 @inject TransactionService TransactionService
+@inject UserProfileService UserProfileService
 
-<h3 class="font-sans">Expense</h3>
+<h3 class="text-2xl font-bold text-gray-800 mb-4">EXPENSES</h3>
 
-<form class="space-y-6 bg-white shadow-md rounded-lg p-6" @onsubmit="saveExpense">
-	<div>
-		<label class="block text-sm font-medium text-gray-700">Amount:</label>
-		<input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newExpense.Amount" name="amount" />
-		<!-- Show warning if the balance is insufficient -->
-		@if (showWarning)
-		{
-			<p class="text-sm text-red-500 mt-2">Insufficient funds. You cannot add this expense.</p>
-		}
-	</div>
+<div class="w-full max-w-7xl mx-auto px-4 py-8">
+    <form class="mx-auto space-y-8 bg-white shadow-2xl rounded-2xl p-8 max-w-4xl border border-gray-200" @onsubmit="HandleSubmit">
+        <div class="grid md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Amount:</label>
+                <input type="number" class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newExpense.Amount" name="amount" />
+                @if (showWarning)
+                {
+                        <p class="text-sm text-red-500 mt-2">Insufficient funds. You cannot add this expense.</p>
+                }
+            </div>
 
-	<div>
-		<label class="block text-sm font-medium text-gray-700">Category:</label>
-		<select class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newExpense.Category">
-			<option disabled>Select Category</option>
-			<option>Rent</option>
-			<option>Groceries</option>
-			<option>Utilities</option>
-			<option>Other</option>
-		</select>
-	</div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Category:</label>
+                <select class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newExpense.Category">
+                    <option value="">Select Category</option>
+                    <option value="Rent">Rent</option>
+                    <option value="Groceries">Groceries</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Other">Other</option>
+                </select>
+                @if (!string.IsNullOrEmpty(categoryError))
+                {
+                        <span class="text-red-500 text-sm mt-1 block">@categoryError</span>
+                }
+            </div>
 
-	<div>
-		<label class="block text-sm font-medium text-gray-700">Date:</label>
-		<input type="date" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newExpense.Date" name="date" />
-	</div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Date:</label>
+                <input type="date" class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newExpense.Date" name="date" />
+            </div>
 
-	<div>
-		<label class="block text-sm font-medium text-gray-700">Tag:</label>
-		<input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newExpense.Tag" name="tag" />
-	</div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Tag:</label>
+                <select class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2"
+                        @onchange=" e => TagInputHelper.HandleTagChange(e, newExpense, visible => showCustomTagInput = visible,tag => newExpense.Tag = tag )">
+                    <option disabled selected value="">Select Tag</option>
+                    @foreach (var tag in expenseTagOptions)
+                    {
+                        <option value="@tag">@tag</option>
+                    }
+                    <option value="custom">+ Add Custom Tag</option>
+                </select>
 
-	<div>
-		<label class="block text-sm font-medium text-gray-700">Account:</label>
-		<select class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newExpense.Account">
-			<option>Cash</option>
-			<option>Accounts</option>
-			<option>Card</option>
-		</select>
-	</div>
+                @if (showCustomTagInput)
+                {
+                    <input type="text"
+                           class="mt-2 w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2"
+                           placeholder="Enter custom tag"
+                           value=""
+                           @oninput=" e => TagInputHelper.UpdateCustomTag(e,newExpense, tag => {
+                            customTagInput = tag;
+                            newExpense.Tag = tag;} )" />
+                }
+            </div>
 
-	<div>
-		<label class="block text-sm font-medium text-gray-700">Note:</label>
-		<input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newExpense.Note" name="note" />
-	</div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Account:</label>
+                <select class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newExpense.Account">
+                    <option value="">Select Account</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Accounts">Accounts</option>
+                    <option value="Card">Card</option>
+                </select>
+                @if (!string.IsNullOrEmpty(accountError))
+                {
+                        <span class="text-red-500 text-sm mt-1 block">@accountError</span>
+                }
+            </div>
 
-	<div class="flex space-x-4">
-		<button class="py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-md" type="submit">Save</button>
-		<button class="py-2 px-4 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 shadow-md" type="reset">Continue</button>
-		<button class="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md" type="reset" @onclick="clear">Delete All Expenses</button>
-	</div>
-</form>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Note:</label>
+                <input type="text" class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newExpense.Note" name="note" />
+            </div>
+        </div>
 
+        <div class="flex flex-col items-center gap-4 mt-8">
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-md" type="submit">
+                    Save
+                </button>
+                <button class="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition shadow-md" type="reset">
+                    Continue
+                </button>
+                <button class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow-md" type="button" @onclick="clear">
+                    Delete All Expenses
+                </button>
+            </div>
 
-<div class="mt-6">
-	<h2 class="text-lg font-semibold mb-4">Expense Records</h2>
-	<table class="min-w-full bg-white shadow-md rounded-lg">
-		<thead>
-			<tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-				<th class="py-3 px-6 text-left">Category</th>
-				<th class="py-3 px-6 text-left">Amount</th>
-				<th class="py-3 px-6 text-left">Date</th>
-				<th class="py-3 px-6 text-left">Tag</th>
-				<th class="py-3 px-6 text-left">Account</th>
-				<th class="py-3 px-6 text-left">Note</th>
-			</tr>
-		</thead>
-		<tbody class="text-gray-700 text-sm">
-			<!-- Data Rows Go Here -->
-			@if (TransactionService.GetTransactionByType<Expense>().Any())
-			{
-				@foreach (var expense in TransactionService.GetTransactionByType<Expense>())
-				{
+            <div class="px-6 py-2 text-white rounded-lg bg-emerald-600 shadow-md text-center">
+                Current Balance: <span class="font-semibold">@UserProfileService.GetPreferredCurrencyCode() @TransactionService.getCurrentBalance()</span>
+            </div>
+        </div>
+    </form>
 
-
-					<tr class="border-b border-gray-200 hover:bg-gray-100">
-						<td class="py-3 px-6 text-left">@expense.Category</td>
-						<td class="py-3 px-6 text-left">@expense.Amount</td>
-						<td class="py-3 px-6 text-left">@expense.Date</td>
-						<td class="py-3 px-6 text-left">@expense.Tag</td>
-						<td class="py-3 px-6 text-left">@expense.Account</td>
-						<td class="py-3 px-6 text-left">@expense.Note</td>
-
-					</tr>
-
-				}
-			}
-		</tbody>
-	</table>
+    <div class="mt-12 overflow-x-auto">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Expense Records</h2>
+        <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden table-fixed">
+            <thead>
+                <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                    <th class="py-3 px-6 text-left w-1/6">Category</th>
+                    <th class="py-3 px-6 text-left w-1/6">Amount</th>
+                    <th class="py-3 px-6 text-left w-1/6">Date</th>
+                    <th class="py-3 px-6 text-left w-1/6">Tag</th>
+                    <th class="py-3 px-6 text-left w-1/6">Account</th>
+                    <th class="py-3 px-6 text-left w-1/6">Note</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-700 text-sm divide-y divide-gray-200">
+                @if (TransactionService.GetTransactionByType<Expense>().Any())
+                {
+                    @foreach (var expense in TransactionService.GetTransactionByType<Expense>())
+                    {
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-3 px-6 break-words">@expense.Category</td>
+                                    <td class="py-3 px-6 break-words">@UserProfileService.GetPreferredCurrencyCode() @expense.Amount</td>
+                                    <td class="py-3 px-6 whitespace-nowrap">@expense.Date.ToString("yyyy-MM-dd")</td>
+                                    <td class="py-3 px-6 break-words">@expense.Tag</td>
+                                    <td class="py-3 px-6 break-words">@expense.Account</td>
+                                    <td class="py-3 px-6 break-words">@expense.Note</td>
+                                </tr>
+                    }
+                }
+                else
+                {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-gray-500">No expense records found.</td>
+                        </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 @code {
+    public Expense newExpense { get; set; } = new Expense() {  Date = DateOnly.FromDateTime(DateTime.Today) };
+    private bool showWarning { get; set; } = false;
+    public string? categoryError { get; set; }
+    public string? accountError { get; set; }
+    private List<string> expenseTagOptions = new()
+{
+    "Monthly Bill",
+    "Groceries",
+    "Transportation",
+    "Utilities",
+    "Health",
+    "Shopping",
+    "Education",
+    "Travel",
+};
+    private bool showCustomTagInput = false;
+    private string? customTagInput;
 
+    private async Task HandleSubmit()
+    {
+        categoryError = string.IsNullOrEmpty(newExpense.Category) ? "Please select a category" : null;
+        accountError = string.IsNullOrEmpty(newExpense.Account) ? "Please select an account" : null;
 
-	public Expense newExpense { get; set; } = new Expense();
+        if (string.IsNullOrEmpty(categoryError) && string.IsNullOrEmpty(accountError))
+        {
+            if (newExpense.Amount <= TransactionService.getCurrentBalance())
+            {
+                TransactionService.AddTransaction(new Expense
+                    {
+                        Id = Guid.NewGuid(),
+                        Amount = newExpense.Amount,
+                        Category = newExpense.Category,
+                        Date = newExpense.Date,
+                        Tag = newExpense.Tag,
+                        getTransactionType = "Expense",
+                        Account = newExpense.Account,
+                        Note = newExpense.Note
+                    });
 
-	private bool showWarning { get; set; } = false; // Flag to show the warning message
+                showWarning = false;
+                newExpense = new Expense { Date = DateOnly.FromDateTime(DateTime.Today) }; // Reset form
+            }
+            else
+            {
+                showWarning = true;
+            }
+        }
+    }
 
-	public void saveExpense()
-	{
-		// Check if the total income is enough for the expense
-		if (newExpense.Amount <= TransactionService.TotalIncomes)
-		{
-			// Create and add a new expense transaction
-			TransactionService.AddTransaction(new Expense
-				{
-					Id = Guid.NewGuid(),
-					Amount = newExpense.Amount,
-					Category = newExpense.Category,
-					Date = newExpense.Date,
-					Tag = newExpense.Tag,
-					Account = newExpense.Account,
-					Note = newExpense.Note
-				});
-
-			// Hide the warning message if the expense is added
-			showWarning = false;
-		}
-		else
-		{
-			// Show a warning message if the balance is insufficient
-			showWarning = true;
-		}
-	}
-
-
-	public void clear()
-	{
-
-		TransactionService.GetTransactionByType<Expense>().Clear();
-	}
-
-
+    public void clear()
+    {
+        TransactionService.ClearTransactions<Expense>();
+    }
 }

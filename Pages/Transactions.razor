@@ -1,16 +1,33 @@
 ﻿@page "/transaction"
 @using GlowExp.Components.Data
 @inject TransactionService TransactionService
+@inject UserProfileService UserProfileService
 
 <h3 class="font-sans font-bold text-sm/[20px]">All Transactions</h3>
+
+<!-- Search Section -->
+<div class="flex items-center justify-between mt-4">
+    <div class="relative w-1/2">
+        <input type="text" placeholder="Search transactions..." class="w-full p-2 border rounded pr-10"  @bind = "searchTerm"  />
+        <button class="absolute right-2 top-2 text-gray-600" @onclick="ApplySearch">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+</div>
 
 <!-- Filter Section -->
 <div class="flex items-center justify-between mt-6">
     <h2 class="text-lg font-semibold">Transaction Records</h2>
-    <button class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-2 px-4 rounded"
-            @onclick="ToggleFilter">
-        <i class="fas fa-filter"></i> Filter
-    </button>
+    <div class="flex gap-2">
+        <button class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+        @onclick="DeleteAllTransactions">
+            <i class="fas fa-trash"></i> Delete All Transactions
+        </button>
+        <button class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-2 px-4 rounded"
+        @onclick="ToggleFilter">
+            <i class="fas fa-filter"></i> Filter
+        </button>
+    </div>
 </div>
 
 @if (showFilter)
@@ -46,11 +63,11 @@
         </div>
         <div class="mt-4 flex justify-end gap-2">
             <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-                    @onclick="ApplyFilters">
+            @onclick="ApplyFilters">
                 Apply
             </button>
             <button class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-2 px-4 rounded"
-                    @onclick="ResetFilters">
+            @onclick="ResetFilters">
                 Reset
             </button>
         </div>
@@ -65,7 +82,7 @@
             <th class="py-3 px-6 text-left">Category</th>
             <th class="py-3 px-6 text-left">Amount</th>
             <th class="py-3 px-6 text-left">Tag</th>
-            <th class="py-3 px-6 text-left">Date</th>
+            <th class="py-3 px-6 text-left cursor-pointer" @onclick ="ToggleSortByDate">Date <i class="fas @(sortByDateAscending ? "fa-arrow-up": "fa-arrow-down")"></i></th>
             <th class="py-3 px-6 text-left">Account/Source</th>
             <th class="py-3 px-6 text-left">Note</th>
         </tr>
@@ -104,7 +121,7 @@
                             <span>@debt.Tag</span>
                         }
                     </td>
-                    <td class="py-3 px-6 text-left">$@transaction.Amount</td>
+                    <td class="py-3 px-6 text-left">@UserProfileService.GetPreferredCurrencyCode() @transaction.Amount</td>
                     <td class="py-3 px-6 text-left">@transaction.Tag</td>
                     <td class="py-3 px-6 text-left">@transaction.Date</td>
 
@@ -139,10 +156,12 @@
 
 @code {
     private bool showFilter = false;
+    private bool sortByDateAscending = true;
+    private string searchTerm = string.Empty;
     private string? filterType = string.Empty;
     private string? filterTag = string.Empty;
-    private DateTime? filterStartDate = null;
-    private DateTime? filterEndDate = null;
+    private DateOnly? filterStartDate = null;
+    private DateOnly? filterEndDate = null;
 
     private List<TransactionBase> filteredTransactions = new();
 
@@ -155,6 +174,47 @@
     private void ToggleFilter()
     {
         showFilter = !showFilter;
+    }
+
+    private void ToggleSortByDate()
+    {
+        sortByDateAscending = !sortByDateAscending;
+        SortTransactionsByDate();
+    }
+
+    private void SortTransactionsByDate()
+    {
+        if (sortByDateAscending)
+        {
+            filteredTransactions = filteredTransactions.OrderBy(t => t.Date).ToList();
+        }
+        else
+        {
+            filteredTransactions = filteredTransactions.OrderByDescending(t => t.Date).ToList();
+
+        }
+    }
+
+    private void ApplySearch()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+
+
+            filteredTransactions = TransactionService.GetAllTransactions();
+        }
+
+        else
+        {
+            filteredTransactions = filteredTransactions.Where(t => (!string.IsNullOrWhiteSpace(t.Note) && t.Note.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))).ToList();
+        }
+    }
+
+
+    private void DeleteAllTransactions()
+    {
+        TransactionService.DeleteAllTransactions();
+        filteredTransactions.Clear();
     }
 
     private void ApplyFilters()

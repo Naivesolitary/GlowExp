@@ -1,152 +1,213 @@
 ﻿@page "/income"
 @using GlowExp.Components.Data
+@using GlowExp.Components.Helpers
+
 @inject TransactionService TransactionService
-<h3 class="font-sans font-bold text-sm/[20px]">Income</h3> 
-
-<form class="space-y-6 bg-white shadow-md rounded-lg p-6" @onsubmit="saveIncome">
-    <div>
-        <label class="block text-sm font-medium text-gray-700">Amount:</label>
-        <input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newIncome.Amount" name="amount" />
-    </div>
-
-    <div>
-        <label class="block text-sm font-medium text-gray-700">Category:</label>
-        <select class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newIncome.Category">
-            <option>Salary</option>
-            <option>Allowance</option>
-            <option>Bonus</option>
-            <option>Other</option>
-        </select>
-    </div>
-
-    <div>
-        <label class="block text-sm font-medium text-gray-700">Date:</label>
-        <input type="date" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newIncome.Date" name="date" />
-    </div>
-
-    <div>
-        <label class="block text-sm font-medium text-gray-700">Tag:</label>
-        <input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newIncome.Tag" name="tag" />
-    </div>
+@inject UserProfileService UserProfileService
 
 
-    <div>
-        <label class="block text-sm font-medium text-gray-700">Account:</label>
-        <select class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newIncome.Account">
-            <option>Cash</option>
-            <option>Accounts</option>
-            <option>Card</option>
-        </select>
-    </div>
-
-    <div>
-        <label class="block text-sm font-medium text-gray-700">Note:</label>
-        <input type="text" class="mt-1 block w-full border border-gray-400 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-3 py-2" @bind="newIncome.Note" name="note" />
-    </div>
-
-    <div class="flex space-x-4">
-        <button class="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-indigo-700 shadow-md" type="submit">Save</button>
-        <button class="py-2 px-4 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 shadow-md" type="reset">Continue</button>
-        <button class="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md" type="reset" @onclick="clear">Delete All Income</button>
-    </div>
-</form>
 
 
-<div class="mt-6">
-    <h2 class="text-lg font-semibold mb-4">Income Records</h2>
-    <table class="min-w-full bg-white shadow-md rounded-lg">
-        <thead>
-            <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                <th class="py-3 px-6 text-left">Category</th>
-                <th class="py-3 px-6 text-left">Amount</th>
-                <th class="py-3 px-6 text-left">Tag</th>
-                <th class="py-3 px-6 text-left">Date</th>
-                <th class="py-3 px-6 text-left">Account</th>
-                <th class="py-3 px-6 text-left">Note</th>
-            </tr>
-        </thead>
-        <tbody class="text-gray-700 text-sm">
+<h3 class="text-2xl font-bold text-gray-800 mb-4">INCOMES</h3>
 
-            <!-- Data Rows Go Here -->
-            @if (TransactionService.GetTransactionByType<Income>().Any())
-            {
-                @foreach (var income in TransactionService.GetTransactionByType<Income>())
+
+<p>Preferred Currency: @UserProfileService.GetPreferredCurrencyCode()</p>
+
+
+<div class="w-full max-w-7xl mx-auto px-4 py-8">
+
+    <form class="mx-auto space-y-8 bg-white shadow-2xl rounded-2xl p-10 max-w-4xl border border-gray-200" @onsubmit="saveIncome">
+        <div class="grid md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Amount:</label>
+                <input type="text" class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newIncome.Amount" name="amount" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Category:</label>
+                <select class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newIncome.Category">
+                    <option disabled selected>Select Category</option>
+                    <option>Salary</option>
+                    <option>Freelance</option>
+                    <option>Investment</option>
+                    <option>Gifts</option>
+                </select>
+                @if (!string.IsNullOrEmpty(categoryError))
                 {
-                    <tr class="border-b border-gray-200 hover:bg-gray-100">
-
-                        <td class="py-3 px-6 text-left">@income.Category</td>
-                        <td class="py-3 px-6 text-left">$@income.Amount</td>
-                        <td class="py-3 px-6 text-left">@income.Tag</td>
-                        <td class="py-3 px-6 text-left">@income.Date</td>
-                        <td class="py-3 px-6 text-left">@income.Account</td>
-                        <td class="py-3 px-6 text-left">@income.Note</td>
-                    </tr>
-
+                    <span class="text-red-500 text-sm mt-1 block">@categoryError</span>
                 }
-            }
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Date:</label>
+                <input type="date" class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newIncome.Date" name="date" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Tag:</label>
+                <select class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2"
+                        @onchange=" e => TagInputHelper.HandleTagChange(e, newIncome, visible => showCustomTagInput = visible,tag => newIncome.Tag = tag )">
+                    <option disabled selected value="">Select Tag</option>
+                    @foreach (var tag in incomeTagOptions)
+                    {
+                        <option value="@tag">@tag</option>
+                    }
+                    <option value="custom">+ Add Custom Tag</option>
+                </select>
+
+                @if (showCustomTagInput)
+                {
+                    <input type="text"
+                           class="mt-2 w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2"
+                           placeholder="Enter custom tag"
+                           value=""
+                           @oninput=" e => TagInputHelper.UpdateCustomTag(e,newIncome, tag => {
+                            customTagInput = tag; 
+                            newIncome.Tag = tag;} )" />
+                }
+            </div>
 
 
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Account:</label>
+                <select class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newIncome.Account">
+                    <option disabled selected>Select Account</option>
+                    <option>Cash</option>
+                    <option>Accounts</option>
+                    <option>Card</option>
+                </select>
+                @if (!string.IsNullOrEmpty(accountError))
+                {
+                    <span class="text-red-500 text-sm mt-1 block">@accountError</span>
+                }
+            </div>
 
-        </tbody>
-    </table>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 uppercase mb-1">Note:</label>
+                <input type="text" class="w-full border border-gray-300 rounded-xl shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2" @bind="newIncome.Note" name="note" />
+            </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-4 mt-8">
+            <!-- Button Row -->
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-md" type="submit">
+                    Save
+                </button>
+                <button class="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition shadow-md" type="reset">
+                    Continue
+                </button>
+                <button class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow-md" type="reset" @onclick="clear">
+                    Delete All Income
+                </button>
+            </div>
+
+            <!-- Balance -->
+            <div class="px-6 py-2 text-white rounded-lg bg-emerald-600 shadow-md text-center">
+                Current Balance: <span class="font-semibold">@UserProfileService.GetPreferredCurrencyCode() @TransactionService.getCurrentBalance()</span>
+            </div>
+        </div>
+    </form>
+
+    <div class="mt-12 overflow-x-auto">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Income Records</h2>
+        <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden table-fixed">
+            <thead>
+                <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                    <th class="py-3 px-6 text-left w-1/6">Category</th>
+                    <th class="py-3 px-6 text-left w-1/6">Amount</th>
+                    <th class="py-3 px-6 text-left w-1/6">Tag</th>
+                    <th class="py-3 px-6 text-left w-1/6">Date</th>
+                    <th class="py-3 px-6 text-left w-1/6">Account</th>
+                    <th class="py-3 px-6 text-left w-1/6">Note</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-700 text-sm divide-y divide-gray-200">
+                @if (TransactionService.GetTransactionByType<Income>().Any())
+                {
+                    @foreach (var income in TransactionService.GetTransactionByType<Income>())
+                    {
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-3 px-6 break-words">@income.Category</td>
+                            <td class="py-3 px-6 break-words">@UserProfileService.GetPreferredCurrencyCode() @income.Amount</td>
+                            <td class="py-3 px-6 break-words">@income.Tag</td>
+                            <td class="py-3 px-6 whitespace-nowrap">@income.Date.ToString("yyyy-MM-dd")</td>
+                            <td class="py-3 px-6 break-words">@income.Account</td>
+                            <td class="py-3 px-6 break-words">@income.Note</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @code {
+    public Income newIncome { get; set; } = new Income() { Date = DateOnly.FromDateTime(DateTime.Today) };
+    private string currencySymbol = "$";
 
-    
-    public Income newIncome { get; set; } = new Income();
-   
+    public string? categoryError { get; set; }
+    public string? accountError { get; set; }
 
+    private List<string> incomeTagOptions = new()
+    {
+        "Monthly", "Salary", "Bonus", "Allowance", "Freelancing", "Investment", "Miscellaneous"
+    };
+    private bool showCustomTagInput = false;
+    private string? customTagInput;
 
+    protected override void OnInitialized()
+    {
+        var setting = new ProfileSetting();
+        var profile = setting.LoadProfile();
+      
+    }
+
+    // private void HandleTagChange(ChangeEventArgs e)
+    // {
+    //     var selected = e.Value?.ToString();
+
+    //     if (selected == "custom")
+    //     {
+    //         showCustomTagInput = true;
+    //         newIncome.Tag = null; clear until input is typed
+    //     }
+    //     else
+    //     {
+    //         showCustomTagInput = false;
+    //         newIncome.Tag = selected;
+    //     }
+    // }
+
+    // private void UpdateCustomTag(ChangeEventArgs e)
+    // {
+    //     customTagInput = e.Value?.ToString();
+    //     newIncome.Tag = customTagInput;
+    // }
 
     public void saveIncome()
     {
-        TransactionService.AddTransaction(new Income
-			{
-				Id = Guid.NewGuid(),
-				Amount = newIncome.Amount,
-				Category = newIncome.Category,
-                Tag = newIncome.Tag,
-				Date = newIncome.Date,
-                getTransactionType = "Income",
-				Account = newIncome.Account,
-				Note = newIncome.Note
-			});
+        categoryError = string.IsNullOrEmpty(newIncome.Category) ? "Please select a category" : null;
+        accountError = string.IsNullOrEmpty(newIncome.Account) ? "Please select an account" : null;
 
-
-
-
-
-
-
-
-
+        if (string.IsNullOrEmpty(categoryError) && string.IsNullOrEmpty(accountError))
+        {
+            TransactionService.AddTransaction(new Income
+                {
+                    Id = Guid.NewGuid(),
+                    Amount = newIncome.Amount,
+                    Category = newIncome.Category,
+                    Tag = newIncome.Tag,
+                    Date = newIncome.Date,
+                    getTransactionType = "Income",
+                    Account = newIncome.Account,
+                    Note = newIncome.Note
+                });
+        }
     }
 
     public void clear()
     {
-
         TransactionService.ClearTransactions<Income>();
     }
-
-
 }

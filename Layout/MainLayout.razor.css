@@ -2,6 +2,7 @@
     position: relative;
     display: flex;
     flex-direction: column;
+
 }
 
 main {
@@ -12,9 +13,15 @@ main {
 
 
 
-.sidebar {
+/*.sidebar {
     background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+}*/
+
+.sidebar {
+    background: #020024;
+    background: linear-gradient(130deg, rgba(2, 0, 36, 1) 30%, rgba(10, 247, 204, 1) 100%, rgba(3, 28, 26, 1) 100%);
 }
+
 
 .top-row {
     background-color: #f7f7f7;
@@ -58,6 +65,11 @@ main {
     .content {
         margin-left: 0; /* Collapse sidebar on smaller screens */
         max-width: 100%; /* Expand to full width */
+        
+
+
+   
+
     }
 
 

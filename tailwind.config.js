@@ -1,14 +1,18 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./wwwroot/index.html","./Pages/**/*.razor"],
+    content: [
+        './**/*.html',
+        './**/*.razor',
+        './Pages/**/*.razor',
+        './Components/**/*.razor',
+        './Shared/**/*.razor',
+        './**/*.cshtml'
+    ],
     theme: {
-        fontFamily: {
-            sans: ['Poppins', 'sans-serif'],
+        extend: {
+            fontFamily: {
+                grotesk: ['"Space Grotesk"', 'sans-serif']
+            }
         },
-      extend: {
-        
-      },
-  },
-  plugins: [],
+        plugins: [],
+    }
 }
-
